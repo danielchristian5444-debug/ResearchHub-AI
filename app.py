@@ -35,12 +35,18 @@ def ask():
 
 def get_wikipedia_summary(query):
     try:
-        summary = wikipedia.summary(query, sentences=3)
+        page = wikipedia.page(query)
+        summary = page.content[:3000]
         return summary
     except wikipedia.exceptions.DisambiguationError as e:
         options = ', '.join(e.options[:5])
         return f"Your query is ambiguous. Did you mean: {options}?"
     except wikipedia.exceptions.PageError:
+        # Try searching if exact page not found
+        results = wikipedia.search(query)
+        if results:
+            page = wikipedia.page(results[0])
+            return page.content[:3000]
         return "Sorry, I couldn't find any information on that topic. Try rephrasing!"
     except Exception as e:
         return f"Something went wrong: {str(e)}"
